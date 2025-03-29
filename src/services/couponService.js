@@ -24,14 +24,14 @@ class CouponService {
     if (cached) return cached;
 
     const coupon = await Coupon.findById(id);
-    if (!coupon) throw new Error('Coupon not found');
+    if (!coupon) throw new NotFoundError('Coupon not found');
     await cache.set(`coupon:${id}`, coupon);
     return coupon;
   }
 
   async updateCoupon(id, data) {
     const coupon = await Coupon.findByIdAndUpdate(id, data, { new: true });
-    if (!coupon) throw new Error('Coupon not found');
+    if (!coupon) throw new NotFoundError('Coupon not found');
     await cache.set(`coupon:${id}`, coupon);
     await cache.del('coupons');
     return coupon;
@@ -39,7 +39,7 @@ class CouponService {
 
   async deleteCoupon(id) {
     const coupon = await Coupon.findByIdAndDelete(id);
-    if (!coupon) throw new Error('Coupon not found');
+    if (!coupon) throw new NotFoundError('Coupon not found');
     await cache.del(`coupon:${id}`);
     await cache.del('coupons');
     return coupon;
@@ -67,11 +67,13 @@ class CouponService {
   async applyCoupon(id, cart) {
     const coupon = await this.getCouponById(id);
     if (coupon.expiration_date && new Date() > coupon.expiration_date) {
-      throw new Error('Coupon expired');
+      throw new CouponExpiredError('Coupon has expired');
     }
 
     const discount = this.calculateDiscount(coupon, cart);
-    if (discount === 0) throw new Error('Coupon conditions not met');
+    if (discount === 0) {
+      throw new CouponConditionError('Coupon conditions not met');
+    }
 
     const updatedCart = this.applyDiscountToCart(coupon, cart, discount);
     return updatedCart;

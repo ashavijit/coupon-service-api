@@ -9,10 +9,22 @@ const app = express();
 app.use(express.json());
 connectDB();
 
+app.get('/', (req, res) => {
+    res.send('Welcome to the Coupon API!');
+});
+
+
 app.use('/api', couponRoutes);
+
+app.use('*', (req, res, next) => {
+    res.json({
+        success: false,
+        message: 'Route not found',
+    });
+});
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-module.exports = app; // For testing
+module.exports = app; 
