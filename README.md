@@ -6,7 +6,7 @@ http://localhost:3000/api
 ```
 
 ## Authentication
-Currently, no authentication is required. For production use, consider adding JWT or API key-based authentication.
+Currently, no authentication is required. For production use, will add JWT or API key-based authentication.
 
 ---
 
